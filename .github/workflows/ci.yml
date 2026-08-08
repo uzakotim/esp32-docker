@@ -1,0 +1,56 @@
+name: ESP32 CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker compose build esp32
+
+      - name: Run tests
+        run: |
+          ./scripts/test.sh
+
+  build:
+    name: Build ESP32 firmware
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker compose build esp32
+
+      - name: Build firmware
+        run: |
+          ./scripts/build.sh
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: esp32-firmware
+          path: |
+            build/*.bin
+            build/flash_project_args
+          if-no-files-found: error
+          retention-days: 30

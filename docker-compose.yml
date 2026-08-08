@@ -1,0 +1,13 @@
+services:
+  esp32:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    volumes:
+      - .:/project
+
+    working_dir: /project
+
+    stdin_open: true
+    tty: true
